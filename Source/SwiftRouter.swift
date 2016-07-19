@@ -41,7 +41,7 @@ extension RouterError: CustomStringConvertible, CustomDebugStringConvertible {
             return "InvalidRouteEntry"
         }
     }
-
+    
     var debugDescription: String {
         return description
     }
@@ -93,7 +93,7 @@ public class Router {
     private let kRouteEntryKey = "_entry"
     
     private var routeMap = NSMutableDictionary()
-
+    
     public func map(route: String, controllerClass: AnyClass) {
         self.doMap(route, cls: controllerClass)
     }
@@ -114,7 +114,7 @@ public class Router {
     }
     
     private func insertRoute(pathComponents: [String], entry: RouteEntry, subRoutes: NSMutableDictionary, index: Int = 0){
-
+        
         if index >= pathComponents.count {
             fatalError(RouterError.EntryAlreayExisted.description)
         }
@@ -146,8 +146,9 @@ public class Router {
     
     public func matchControllerFromStoryboard(route: String, storyboardName: String = "Storyboard") -> AnyObject? {
         var params = self.paramsInRoute(route)
-        if let entry = self.findRouteEntry(route, params: &params) {
-            let name = NSStringFromClass(entry.klass!)
+        if let entry = self.findRouteEntry(route, params: &params),
+            let klass = entry.klass {
+            let name = NSStringFromClass(klass)
             let clz = NSClassFromString(name) as! NSObject.Type
             let storyboard = UIStoryboard(name: storyboardName, bundle: NSBundle(forClass: clz))
             let controllerIdentifier = name.componentsSeparatedByString(".").last!
@@ -165,7 +166,7 @@ public class Router {
         }
         return nil
     }
-
+    
     private func findRouteEntry(route: String, inout params:[String:String]) -> RouteEntry? {
         let pathComponents = self.pathComponentsInRoute(route)
         
@@ -200,7 +201,7 @@ public class Router {
     }
     
     private func paramsInRoute(route: String) -> [String: String] {
-
+        
         var params = [String:String]()
         self.findRouteEntry(route.stringByFilterAppSchemes(), params: &params)
         
